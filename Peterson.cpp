@@ -92,7 +92,7 @@ TournamentTree::TournamentTree(std::size_t num_threads_)
 	else {
 		power_of_2 = true;
 	}
-	lock.resize(num_threads-1);
+	lock.resize(num_threads);
 	const peterson_mutex a_i();
 	p_id.resize(num_threads);
 }
