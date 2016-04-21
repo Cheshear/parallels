@@ -6,6 +6,9 @@
 #include <functional> 
 #include<atomic>
 #include<thread>
+#include <ctime>
+#include <chrono>
+#include <random>
 #include<shared_mutex>
 #include<array>
 
@@ -35,7 +38,7 @@ public:
 		data[bucketNum].push_front(t);
 		std::cout << t << std::endl;
 		int newSize = size++;
-		std::cout <<"realsize" << size.load() << std::endl;
+		//std::cout <<"realsize" << size.load() << std::endl;
 		if (double(newSize / data.size()) > policy) {
 			std::cout << "if" << newSize / data.size() << std::endl;
 			//std::cout << "Oh now!" << std::endl;
@@ -141,19 +144,24 @@ const double expend_val_ = 2;
 CMyHashTable<int> table(N, policy_, expend_val_);
 
 void test(){
-	for (int i = 0; i < 10; ++i) {
-		table.add(1 + std::rand() % 100);
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::minstd_rand0 generator(seed);
+	std::vector<int> gen;
+	gen.resize(8);
+	for (int i = 0; i < 8; ++i) {
+		gen[i] = generator();
+		table.add(gen[i]);
 	}
-	for (int i = 0; i < 7; ++i) {
-		int a = 1 + std::rand() % 100;
+	for (int i = 0; i < 5; ++i) {
+		int a = gen[i];
 		if (table.contains(a)) {
 			std::cout << "contains: " << a << std::endl;
 		}
 	}
 	std::cout << "remove: " << std::endl;
 	bool flag = false;
-	for (int i = 0; i < 7; ++i) {
-		int b = 1 + std::rand() % 100;
+	for (int i = 0; i < 5; ++i) {
+		int b = gen[std::rand()%7];
 		if (table.contains(b)) {
 			std::cout << "contains: " << b << std::endl;
 			flag = true;
@@ -166,7 +174,9 @@ void test(){
 		}
 		flag = false;
 	}
+	std::cout << "test end" << std::endl;
 }
+
 
 int main() {
 	int thread_number;
